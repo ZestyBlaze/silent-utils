@@ -124,7 +124,7 @@ public class ConfigValue<T> {
         }
 
         public <E extends Enum<E>> EnumValue<E> defineEnum(E defaultValue, Set<E> validValues) {
-            handleSpec(spec -> spec.define(path, defaultValue.toString(), o ->
+            handleSpec(spec -> spec.define(path, defaultValue.name(), o ->
                     validateEnum(defaultValue.getDeclaringClass(), validValues, o)));
             return new EnumValue<>(defaultValue, wrapper, path, this::doSpec, this::doConfig);
         }
