@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Anchor enum
+
 ### Fixed
 
 - EnumValue using "toString" instead of "name" (fixes loading of enums that override toString)
