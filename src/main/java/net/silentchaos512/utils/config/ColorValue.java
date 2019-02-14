@@ -19,7 +19,7 @@ public class ColorValue extends ConfigValue<Color> {
         return Color.tryParse(config.get(path), defaultValue);
     }
 
-    public static Builder<Color> builder(ConfigSpecWrapper wrapper, String path) {
-        return new Builder<>(wrapper, path);
+    public static Builder builder(ConfigSpecWrapper wrapper, String path) {
+        return new Builder(wrapper, path);
     }
 }

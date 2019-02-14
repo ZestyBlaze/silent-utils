@@ -10,7 +10,7 @@ public class LongValue extends ConfigValue<Long> {
         super(wrapper, path, handleSpec, handleConfig);
     }
 
-    public static Builder<Long> builder(ConfigSpecWrapper wrapper, String path) {
-        return new Builder<>(wrapper, path);
+    public static Builder builder(ConfigSpecWrapper wrapper, String path) {
+        return new Builder(wrapper, path);
     }
 }

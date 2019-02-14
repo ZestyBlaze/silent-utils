@@ -10,7 +10,7 @@ public class DoubleValue extends ConfigValue<Double> {
         super(builder, path, handleSpec, handleConfig);
     }
 
-    public static Builder<Double> builder(ConfigSpecWrapper wrapper, String path) {
-        return new Builder<>(wrapper, path);
+    public static Builder builder(ConfigSpecWrapper wrapper, String path) {
+        return new Builder(wrapper, path);
     }
 }

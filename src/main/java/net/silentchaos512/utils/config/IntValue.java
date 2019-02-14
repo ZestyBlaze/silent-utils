@@ -10,7 +10,7 @@ public class IntValue extends ConfigValue<Integer> {
         super(wrapper, path, handleSpec, handleConfig);
     }
 
-    public static Builder<Integer> builder(ConfigSpecWrapper wrapper, String path) {
-        return new Builder<>(wrapper, path);
+    public static Builder builder(ConfigSpecWrapper wrapper, String path) {
+        return new Builder(wrapper, path);
     }
 }

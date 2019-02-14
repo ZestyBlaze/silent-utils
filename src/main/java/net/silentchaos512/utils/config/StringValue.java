@@ -5,8 +5,8 @@ import com.electronwill.nightconfig.core.ConfigSpec;
 
 import java.util.function.Consumer;
 
-public class BooleanValue extends ConfigValue<Boolean> {
-    BooleanValue(ConfigSpecWrapper wrapper, String path, Consumer<ConfigSpec> handleSpec, Consumer<CommentedConfig> handleConfig) {
+public class StringValue extends ConfigValue<String> {
+    StringValue(ConfigSpecWrapper wrapper, String path, Consumer<ConfigSpec> handleSpec, Consumer<CommentedConfig> handleConfig) {
         super(wrapper, path, handleSpec, handleConfig);
     }
 

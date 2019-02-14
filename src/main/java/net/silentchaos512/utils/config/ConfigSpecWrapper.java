@@ -1,21 +1,37 @@
 package net.silentchaos512.utils.config;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.ConfigSpec;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.file.FileConfig;
+import com.electronwill.nightconfig.core.io.ParsingMode;
+import com.electronwill.nightconfig.core.io.WritingMode;
 import org.apache.logging.log4j.LogManager;
 
+import java.nio.file.Path;
+
 public class ConfigSpecWrapper {
-    final CommentedFileConfig config;
+    final CommentedConfig config;
     final ConfigSpec spec;
 
-    public ConfigSpecWrapper(CommentedFileConfig config, ConfigSpec spec) {
+    public ConfigSpecWrapper(CommentedConfig config, ConfigSpec spec) {
         this.config = config;
         this.spec = spec;
-
-        this.config.load();
+        load();
     }
 
-    public ConfigValue.Builder<?> builder(String path) {
+    public static ConfigSpecWrapper create(Path filePath) {
+        return new ConfigSpecWrapper(
+                CommentedFileConfig.builder(filePath.toFile())
+                        .parsingMode(ParsingMode.REPLACE)
+                        .writingMode(WritingMode.REPLACE)
+                        .autoreload()
+                        .build(),
+                new ConfigSpec()
+        );
+    }
+
+    public <T> ConfigValue.Builder builder(String path) {
         return ConfigValue.builder(this, path);
     }
 
@@ -31,12 +47,33 @@ public class ConfigSpecWrapper {
 
     public void validate() {
         if (!spec.isCorrect(config)) {
-            String configName = config.getNioPath().toString();
+            String configName = config instanceof FileConfig
+                    ? ((FileConfig) config).getNioPath().toString()
+                    : config.toString();
             LogManager.getLogger().warn("Correcting config file {}", configName);
             spec.correct(config, (action, path, incorrectValue, correctedValue) ->
                     LogManager.getLogger().warn("  {}: {} -> {}", path, incorrectValue, correctedValue));
-            config.save();
+            save();
         }
-//        config.close();
+    }
+
+    public final void load() {
+        if (config instanceof FileConfig) {
+            ((FileConfig) config).load();
+        }
+    }
+
+    public final void save() {
+        if (config instanceof FileConfig) {
+            ((FileConfig) config).save();
+        }
+    }
+
+    public CommentedConfig getConfig() {
+        return config;
+    }
+
+    public ConfigSpec getSpec() {
+        return spec;
     }
 }

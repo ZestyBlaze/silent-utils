@@ -4,15 +4,12 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.ConfigSpec;
 import net.silentchaos512.utils.Color;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class ConfigValue<T> {
+public class ConfigValue<V> {
     final CommentedConfig config;
     final ConfigSpec spec;
     final String path;
@@ -26,15 +23,15 @@ public class ConfigValue<T> {
         handleConfig.accept(this.config);
     }
 
-    public T get() {
+    public V get() {
         return config.get(this.path);
     }
 
-    public static <T> Builder<T> builder(ConfigSpecWrapper wrapper, String path) {
-        return new Builder<>(wrapper, path);
+    public static Builder builder(ConfigSpecWrapper wrapper, String path) {
+        return new Builder(wrapper, path);
     }
 
-    public static class Builder<T> {
+    public static class Builder {
         private final ConfigSpecWrapper wrapper;
         private final String path;
         private final Collection<Consumer<CommentedConfig>> handleConfig = new ArrayList<>();
@@ -49,22 +46,22 @@ public class ConfigValue<T> {
             return path;
         }
 
-        public Builder<T> comment(String comment) {
+        public Builder comment(String comment) {
             return handleConfig(c -> c.setComment(path, comment));
         }
 
-        public Builder<T> comment(String firstLine, String... rest) {
+        public Builder comment(String firstLine, String... rest) {
             StringBuilder builder = new StringBuilder(firstLine);
             for (String str : rest) builder.append("\n").append(str);
             return comment(builder.toString());
         }
 
-        public Builder<T> handleSpec(Consumer<ConfigSpec> handler) {
+        public Builder handleSpec(Consumer<ConfigSpec> handler) {
             this.handleSpec.add(handler);
             return this;
         }
 
-        public Builder<T> handleConfig(Consumer<CommentedConfig> handler) {
+        public Builder handleConfig(Consumer<CommentedConfig> handler) {
             this.handleConfig.add(handler);
             return this;
         }
@@ -141,16 +138,42 @@ public class ConfigValue<T> {
             return false;
         }
 
-        public ConfigValue<T> define(T defaultValue) {
+        public StringValue defineString(String defaultValue) {
+            return defineString(() -> defaultValue, IS_STRING);
+        }
+
+        public StringValue defineString(String defaultValue, Predicate<Object> validator) {
+            return defineString(() -> defaultValue, validator);
+        }
+
+        public StringValue defineString(Supplier<String> defaultValue) {
+            return defineString(defaultValue, IS_STRING);
+        }
+
+        public StringValue defineString(Supplier<String> defaultValue, Predicate<Object> validator) {
+            handleSpec(spec -> spec.define(path, defaultValue, validator));
+            return new StringValue(wrapper, path, this::doSpec, this::doConfig);
+        }
+
+        public <E> ConfigValue<List<? extends E>> defineList(List<? extends E> defaultValues, Predicate<Object> elementValidator) {
+            return defineList(() -> defaultValues, elementValidator);
+        }
+
+        public <E> ConfigValue<List<? extends E>> defineList(Supplier<List<? extends E>> defaultValues, Predicate<Object> elementValidator) {
+            handleSpec(spec -> spec.defineList(path, defaultValues::get, elementValidator));
+            return define(defaultValues, elementValidator);
+        }
+
+        public <S> ConfigValue<S> define(S defaultValue) {
             return define(() -> defaultValue, o ->
                     o != null && defaultValue.getClass().isAssignableFrom(o.getClass()));
         }
 
-        public ConfigValue<T> define(T defaultValue, Predicate<Object> validator) {
+        public <S> ConfigValue<S> define(S defaultValue, Predicate<Object> validator) {
             return define(() -> defaultValue, validator);
         }
 
-        public ConfigValue<T> define(Supplier<T> defaultValue, Predicate<Object> validator) {
+        public <S> ConfigValue<S> define(Supplier<S> defaultValue, Predicate<Object> validator) {
             handleSpec(spec -> spec.define(path, defaultValue, validator));
             return new ConfigValue<>(wrapper, path, this::doSpec, this::doConfig);
         }
