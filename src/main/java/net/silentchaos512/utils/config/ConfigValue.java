@@ -110,7 +110,7 @@ public class ConfigValue<V> {
             return new IntValue(wrapper, path, this::doSpec, this::doConfig) {
                 @Override
                 public Integer get() {
-                    return Color.parse(config.get(path)).getColor();
+                    return Color.parseInt(config.get(path));
                 }
             };
         }
@@ -161,7 +161,7 @@ public class ConfigValue<V> {
 
         public <E> ConfigValue<List<? extends E>> defineList(Supplier<List<? extends E>> defaultValues, Predicate<Object> elementValidator) {
             handleSpec(spec -> spec.defineList(path, defaultValues::get, elementValidator));
-            return define(defaultValues, elementValidator);
+            return new ConfigValue<>(wrapper, path, this::doSpec, this::doConfig);
         }
 
         public <S> ConfigValue<S> define(S defaultValue) {

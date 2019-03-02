@@ -31,7 +31,7 @@ public class ConfigSpecWrapper {
         );
     }
 
-    public <T> ConfigValue.Builder builder(String path) {
+    public ConfigValue.Builder builder(String path) {
         return ConfigValue.builder(this, path);
     }
 
@@ -47,9 +47,7 @@ public class ConfigSpecWrapper {
 
     public void validate() {
         if (!spec.isCorrect(config)) {
-            String configName = config instanceof FileConfig
-                    ? ((FileConfig) config).getNioPath().toString()
-                    : config.toString();
+            String configName = getConfigName();
             LogManager.getLogger().warn("Correcting config file {}", configName);
             spec.correct(config, (action, path, incorrectValue, correctedValue) ->
                     LogManager.getLogger().warn("  {}: {} -> {}", path, incorrectValue, correctedValue));
@@ -57,14 +55,22 @@ public class ConfigSpecWrapper {
         }
     }
 
+    private String getConfigName() {
+        return config instanceof FileConfig
+                ? ((FileConfig) config).getNioPath().toString()
+                : config.toString();
+    }
+
     public final void load() {
         if (config instanceof FileConfig) {
+            LogManager.getLogger().info("Loading config file {}", this::getConfigName);
             ((FileConfig) config).load();
         }
     }
 
     public final void save() {
         if (config instanceof FileConfig) {
+            LogManager.getLogger().info("Saving config file {}", this::getConfigName);
             ((FileConfig) config).save();
         }
     }

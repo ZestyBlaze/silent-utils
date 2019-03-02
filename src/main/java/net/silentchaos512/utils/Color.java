@@ -193,11 +193,12 @@ public class Color {
     private final int alpha;
 
     public Color(int color) {
-        this.color = color;
-        this.alpha = (color >> 24) & 0xFF;
         this.red = (color >> 16) & 0xFF;
         this.green = (color >> 8) & 0xFF;
         this.blue = color & 0xFF;
+        int a = (color >> 24) & 0xFF;
+        this.alpha = a > 0 ? a : 0xFF;
+        this.color = (this.alpha << 24) | (color & 0xFFFFFF);
     }
 
     public Color(int red, int green, int blue) {
@@ -205,11 +206,11 @@ public class Color {
     }
 
     public Color(int red, int green, int blue, int alpha) {
-        this.color = ((alpha & 0xFF) << 24) & ((red & 0xFF) << 16) & ((green & 0xFF) << 8) & (blue & 0xFF);
-        this.alpha = alpha;
+        this.alpha = alpha > 0 ? alpha : 0xFF;
         this.red = red;
         this.green = green;
         this.blue = blue;
+        this.color = (this.alpha << 24) | (this.red << 16) | (this.green << 8) | this.blue;
     }
 
     public Color(float red, float green, float blue) {
@@ -266,14 +267,7 @@ public class Color {
      * @implNote Uses {@link UnsignedInts#parseUnsignedInt(String, int)} for parsing
      */
     public static Color parse(String str) {
-        // Named color?
-        str = str.toLowerCase(Locale.ROOT);
-        if (NAMED_MAP.containsKey(str)) return NAMED_MAP.get(str);
-
-        // Hex code
-        str = PATTERN_LEADING_JUNK.matcher(str).replaceFirst("");
-        int color = UnsignedInts.parseUnsignedInt(str, 16);
-        return new Color(color);
+        return new Color(parseInt(str));
     }
 
     /**
@@ -286,6 +280,27 @@ public class Color {
     public static Color tryParse(String str, int defaultValue) {
         if (!validate(str)) return new Color(defaultValue);
         return parse(str);
+    }
+
+    /**
+     * Attempt to parse the string as a color, but returns the integer representation instead of
+     * creating a Color object. May be either a common CSS color name or a hex code with optional
+     * leading '#' or '0x'.
+     *
+     * @param str The string to try to parse
+     * @return A Color object based on str
+     * @throws NumberFormatException If the string cannot be parsed
+     * @throws NullPointerException  If the string is null
+     * @implNote Uses {@link UnsignedInts#parseUnsignedInt(String, int)} for parsing
+     */
+    public static int parseInt(String str) {
+        // Named color?
+        str = str.toLowerCase(Locale.ROOT);
+        if (NAMED_MAP.containsKey(str)) return NAMED_MAP.get(str).getColor();
+
+        // Hex code
+        str = PATTERN_LEADING_JUNK.matcher(str).replaceFirst("");
+        return UnsignedInts.parseUnsignedInt(str, 16);
     }
 
     /**
@@ -302,7 +317,9 @@ public class Color {
     public static Color from(JsonObject json, String propertyName, int defaultValue) {
         String defaultStr = Integer.toHexString(defaultValue);
         JsonElement element = json.get(propertyName);
-        return Color.parse(element.isJsonPrimitive() ? element.getAsString() : defaultStr);
+        if (element == null || !element.isJsonPrimitive())
+            return Color.parse(defaultStr);
+        return Color.parse(element.getAsString());
     }
 
     //endregion
@@ -316,8 +333,8 @@ public class Color {
     }
 
     public static Color blend(Color color1, Color color2, float ratio) {
-        int i1 = color1.getColor();
-        int i2 = color2.getColor();
+        int i1 = color1.color;
+        int i2 = color2.color;
 
         int color = blend(i1, i2, ratio);
         return new Color(color);
@@ -350,41 +367,38 @@ public class Color {
     }
 
     public int getColor() {
-        int r = (int) (red * 255f) << 16;
-        int g = (int) (green * 255f) << 8;
-        int b = (int) (blue * 255f);
-        return r + g + b;
+        return color;
     }
 
     public float getRed() {
-        return red;
+        return red / 255f;
     }
 
     public float getGreen() {
-        return green;
+        return green / 255f;
     }
 
     public float getBlue() {
-        return blue;
+        return blue / 255f;
     }
 
     public float getAlpha() {
-        return alpha;
+        return alpha / 255f;
     }
 
     public int getRedInt() {
-        return (int) (red * 255f);
+        return red;
     }
 
     public int getGreenInt() {
-        return (int) (green * 255f);
+        return green;
     }
 
     public int getBlueInt() {
-        return (int) (blue * 255f);
+        return blue;
     }
 
     public int getAlphaInt() {
-        return (int) (alpha * 255f);
+        return alpha;
     }
 }
