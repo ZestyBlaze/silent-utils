@@ -14,7 +14,7 @@ plugins {
 }
 
 group = 'net.silentchaos512'
-version = '1.0.4'
+version = '1.0.5'
 
 repositories {
     jcenter()
@@ -24,7 +24,7 @@ dependencies {
     implementation 'com.google.guava:guava:26.0-jre'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'com.electronwill.night-config:toml:3.4.0'
+    implementation 'com.electronwill.night-config:toml:3.+'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.2'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.2'
 
