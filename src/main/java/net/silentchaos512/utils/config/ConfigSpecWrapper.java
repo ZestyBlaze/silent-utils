@@ -23,6 +23,7 @@ public class ConfigSpecWrapper {
     public static ConfigSpecWrapper create(Path filePath) {
         return new ConfigSpecWrapper(
                 CommentedFileConfig.builder(filePath.toFile())
+                        .preserveInsertionOrder()
                         .parsingMode(ParsingMode.REPLACE)
                         .writingMode(WritingMode.REPLACE)
                         .autoreload()
