@@ -57,10 +57,30 @@ public final class MathUtils {
     }
 
     /**
+     * Check if {@code value} is equal to {@code value} casted to an int.
+     *
+     * @param value The value
+     * @return True if and only if {@code value} is equal to {@code (int) value}
+     */
+    public static boolean doubleIsInt(double value) {
+        return MathUtils.doublesEqual(value, (int) value);
+    }
+
+    /**
      * Compare if two floats are equal, using precision constant {@link #DOUBLES_EQUAL_PRECISION}.
      */
     public static boolean floatsEqual(float a, float b) {
         return floatsEqual(a, b, (float) DOUBLES_EQUAL_PRECISION);
+    }
+
+    /**
+     * Check if {@code value} is equal to {@code value} casted to an int.
+     *
+     * @param value The value
+     * @return True if and only if {@code value} is equal to {@code (int) value}
+     */
+    public static boolean floatIsInt(float value) {
+        return floatsEqual(value, (int) value);
     }
 
     /**
